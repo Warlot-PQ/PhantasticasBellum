@@ -19,9 +19,13 @@ public class MonIA extends IA {
 
 	@Override
 	public Coup getCoup(Partie p) {
-		//Choisie un PFs
 		
-		//
+		
+		
+		
+		alphaBeta(p, p.getJoueurActuel(), this.aplha, this.beta, true, 5);
+		
+		
 		
 		
 		return null;
@@ -39,50 +43,58 @@ public class MonIA extends IA {
 			return heuristique(joueur);
 		} else if (partieFini) {
 			//Si la partie est terminée
-			boolean partieGagne = modelClone.estGagne();
-			boolean partiePerdu = modelClone.estPerdu();
+			
+			modelClone.joueurSuivant();
+			boolean partieGagne = modelClone.getJoueurActuel().estBattu();
+			modelClone.joueurSuivant();
+			
+			boolean partiePerdu = modelClone.getJoueurActuel().estBattu();
 			
 			if (partieGagne) {
 				//Terminée et gagnée => retourner la valeur maximum
-				return aplha;
+				return this.aplha;
 			} else if (partiePerdu) {
 				//Terminée et perdu => retourner la valeur minimum
-				return beta;
+				return this.beta;
 			} else {
 				//Terminée et match nul => retourner la valeur moyenne
-				return (beta + aplha) / 2;
+				return (this.beta + this.aplha) / 2;
 			}
 		} else {
 			//Profondeur non atteinte et partie non terminée
 			Personnage personnageChoisi;
-			List<CoupDeplacementEtAttaque> listeAction;
+			List<Coup> listeAction;
 			int alphaCourant;
 			int betaCourant;
 			
 			if (noeudMax) {
 				//A moi de jouer
 				
-				//Choisie un personnage parmis ceux disponible (un personnage ayant déjà joué sur ce tour n'est pas disponible)
-				personnageChoisi = choixPersonnage(modelClone.getPersonnesActifs());
+				/*
+				//Choisie un personnage parmis ceux disponible 
+				personnageChoisi = choixPersonnage(modelClone.getJoueurActuel().getEquipe().);
 				
 				//Récupére toutes les actions possibles du personnage selectionné
-				listeAction = modelClone.getTousCoupsPersonnage(personnageChoisi);	//TODO getTousCoupsPersonnage retourne des couples déplacement/attaque
+				listeAction = modelClone.getTousCoupsPersonnage(personnageChoisi);
+				*/
+				listeAction = modelClone.getTousCoups();
 				
 				//Ordonne les actions
-				ordonneActions(listeAction);
+				//ordonneActions(listeAction);
 				
 				//Elague la liste en fonction de la profondeur
 				//elaguageActions(listeAction, profondeur);
 				
-				for(CoupDeplacementEtAttaque action : listeAction) {
-					//Applique l'action et passe au joueur suivent
-					modelClone.applyAction(action);
+				for(Coup action : listeAction) {
+					//Applique l'action et passe au joueur suivant
+					modelClone.appliquerCoup(action);
 					model.joueurSuivant();
 					
+					//Noeud suivant
 					alphaCourant = alphaBeta(modelClone, model.getJoueurActuel(), alpha, beta, !noeudMax, profondeur - 1);
 					
 					if (alphaCourant > alpha) {
-						//Si meilleur coups trouvé
+						//Si un meilleur coups est trouvé
 						alpha = alphaCourant;
 					}
 					//Coupure beta
@@ -101,11 +113,12 @@ public class MonIA extends IA {
 				//Elague la liste en fonction de la profondeur
 				//elaguageActions(listeAction, profondeur);
 				
-				for(CoupDeplacementEtAttaque action : listeAction) {
-					//Applique l'action et passe au joueur suivent
-					modelClone.applyAction(action);
+				for(Coup action : listeAction) {
+					//Applique l'action et passe au joueur suivant
+					modelClone.appliquerCoup(action);
 					model.joueurSuivant();
 					
+					//Noeud suivant
 					betaCourant = alphaBeta(modelClone, model.getJoueurActuel(), alpha, beta, !noeudMax, profondeur - 1);
 					
 					if (betaCourant > alpha) {
@@ -139,7 +152,7 @@ public class MonIA extends IA {
 	 * @pre liste d'actions non ordonnées
 	 * @post list d'actions ordonnées par ordre d'importance décroissante
 	 */
-	private void ordonneActions(List<CoupDeplacementEtAttaque> listeActions) {
+	private void ordonneActions(List<Coup> listeActions) {
 		//Ordonne les fils selon un critère d'évaluation d'une action
 		
 		
@@ -151,15 +164,19 @@ public class MonIA extends IA {
 	 * @pre list d'actions ordonnées par ordre d'importance décroissante
 	 * @post list d'actions ordonnées par ordre d'importance décroissante élaguée
 	 */
-	private void elaguageActions(List<CoupDeplacementEtAttaque> listeActions, int profondeur){
+	private void elaguageActions(List<Coup> listeActions, int profondeur){
 		
 	}
 	
 	/**
-	 * Choisie le personnage qui va jouer
+	 * Choisie le personnage qui va jouer, 
+	 * un personnage ayant déjà joué sur ce tour n'est pas disponible
 	 * @return personnage choisie pour jouer à ce tour
 	 */
-	private Personnage choixPersonnage() {
+	private Personnage choixPersonnage(List<Personnage> personnageEquipe) {
+		
+		
+		
 		return null;
 	}
 }
