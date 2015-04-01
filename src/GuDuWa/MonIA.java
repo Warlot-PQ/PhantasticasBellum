@@ -136,47 +136,33 @@ public class MonIA extends IA {
 		}
 	}
 	
-	/**
-	 * Valeur d'utilitée calculée en fonction de la partie
-	 * @param joueur joueur actuel
-	 * @return valeur d'utilitée
-	 */
-	private int heuristique(Joueur joueur) {
+	private int facteur_puissance() {
 		
-		return 0;
-	}
-	
-	/**
-	 * Ordonne par ordre décroissant la liste d'actions passée en paramètre
-	 * @param listeActions liste d'actions
-	 * @pre liste d'actions non ordonnées
-	 * @post list d'actions ordonnées par ordre d'importance décroissante
-	 */
-	private void ordonneActions(List<Coup> listeActions) {
-		//Ordonne les fils selon un critère d'évaluation d'une action
-		
+		//David
 		
 	}
 	
-	/**
-	 * Elague la liste d'actions passée en paramètre en fonction de la profondeur passée en paramètre
-	 * @param listeActions liste d'actions
-	 * @pre list d'actions ordonnées par ordre d'importance décroissante
-	 * @post list d'actions ordonnées par ordre d'importance décroissante élaguée
-	 */
-	private void elaguageActions(List<Coup> listeActions, int profondeur){
+	private int heuristique_coup(Joueur joueur) {
+		
+
+
+	}
+	
+	private int heuristique_plateau(Joueur joueur) {
+		
+		//Thomas
+
+	}
+	
+	private void ordonne_coup_puis_elague(List<Coup> listeCoup) {
+		
+		
 		
 	}
 	
-	/**
-	 * Choisie le personnage qui va jouer, 
-	 * un personnage ayant déjà joué sur ce tour n'est pas disponible
-	 * @return personnage choisie pour jouer à ce tour
-	 */
-	private Personnage choixPersonnage(List<Personnage> personnageEquipe) {
+	private Personnage choix_personnage(List<Personnage> personnageEquipe) {
 		
+		//PQ
 		
-		
-		return null;
 	}
 }
