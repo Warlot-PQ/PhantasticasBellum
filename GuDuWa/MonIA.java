@@ -136,33 +136,56 @@ public class MonIA extends IA {
 		}
 	}
 	
-	private int facteur_puissance() {
-		
-		//David
-		
-	}
-	
-	private int heuristique_coup(Joueur joueur) {
-		
-
-
-	}
-	
-	private int heuristique_plateau(Joueur joueur) {
+	/**
+	 * Calcul l'heuristique de la partie (l'évalue) passé en paramètre et retourne la valeur calculé
+	 * @param maPartie partie à évaluer
+	 * @return valeur du plateau
+	 */
+	private int heuristique_plateau(Partie maPartie) {
 		
 		//Thomas
 
 	}
-	
-	private void ordonne_coup_puis_elague(List<Coup> listeCoup) {
+	/**
+	 * Calcul l'heuristique de chaque coup (sa valeur), ordonne par ordre décroissant et ne garde que les nbCoupRetour premiers
+	 * @param listeCoup liste de coup à évalué, ordonné et élaguer
+	 * @param nbCoupRetour nombre de coup conservé après élaguage
+	 */
+	private void ordonne_coup_puis_elague(List<Coup> listeCoup, int nbCoupRetour) {
 		
 		
 		
 	}
-	
+
+	/**
+	 * Choisie et retourne le personnage le plus puissant dans la liste passé en paramètre
+	 * @param personnageEquipe liste de personnage
+	 * @return personnage choisi
+	 */
 	private Personnage choix_personnage(List<Personnage> personnageEquipe) {
 		
 		//PQ
+		
+	}
+
+	/**
+	 * Calcul l'heuristique du coup (l'évalue) passé en paramètre et retourne la valeur calculé
+	 * @param monCoup coup à évaluer
+	 * @return valeur du coup
+	 */
+	private int heuristique_coup(Coup monCoup) {
+		
+
+	}
+	
+	/**
+	 * Calcul du facteur de puissance d'un personnage (importance de personnage en début de partie)
+	 * @param monPerso personne à évaluer
+	 * @return facteur de puissance
+	 */
+	private int facteur_puissance(Personnage monPerso) {
+		
+		//David
 		
 	}
 }
