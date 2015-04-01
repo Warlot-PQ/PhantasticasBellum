@@ -8,12 +8,12 @@ import Model.Joueur;
  *
  * @author Gwenole Lecorve
  */
-public abstract class IA extends Joueur {
+public abstract class AbstractIA extends Joueur {
 
     /**
-     * Computation time in milliseconds
+     * Delai de reflexion (c.-a-d. de calcul) autorise pour tous les joueurs artificiels
      */
-    public static final int DELAY = 4000;
+    public static final int DELAI_DE_REFLEXION = 4000;
 
     private Coup coupMemorise;
 
@@ -21,7 +21,7 @@ public abstract class IA extends Joueur {
      * Constructeur
      * @param nom Nom du joueur artificiel
      */
-    public IA(String nom) {
+    public AbstractIA(String nom) {
         super(nom);
         coupMemorise = null;
     }

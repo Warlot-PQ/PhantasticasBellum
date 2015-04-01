@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Gwenole Lecorve
  */
-public class IAAleatoireAgressive extends IA {
+public class IAAleatoireAgressive extends AbstractIA {
 
     /**
      * Constructeur par defaut
@@ -33,9 +33,11 @@ public class IAAleatoireAgressive extends IA {
     protected boolean contientAttaque(Coup c) {
         for (Action a : c.getActions()) {
             if (a instanceof Attaque) {
-//                System.out.println("Cible = " + ((Attaque) a).getCible().getProprio().getNom());
-//                System.out.println("Auteur = " + this.getNom());
-                return true;
+                System.out.println("Cible = " + ((Attaque) a).getCible().getProprio().getNom());
+                System.out.println("Auteur = " + this.getNom());
+                if (!((Attaque) a).getCible().getProprio().equals(this)) {
+                    return true;
+                }
             }
         }
         return false;

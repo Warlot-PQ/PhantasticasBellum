@@ -8,7 +8,7 @@ import java.util.List;
  * Joueur artificiel qui choisit chaque coup au hasard
  * @author Gwenole Lecorve
  */
-public class IAAleatoire extends IA {
+public class IAAleatoire extends AbstractIA {
 
     /**
      * Constructeur par defaut

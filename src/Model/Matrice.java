@@ -154,8 +154,8 @@ public class Matrice {
 	}
 	
 	/**
-	 * liste les cases accessible
-	 * @param maPosition position courrante
+	 * liste les cases accessibles
+	 * @param maPosition position courante
 	 * @return collection de position de case
 	 */
 	public List<Position> getCasesAccessible(Position maPosition){

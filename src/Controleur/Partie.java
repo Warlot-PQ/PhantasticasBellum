@@ -384,8 +384,10 @@ public class Partie {
          */
         public List<Coup> getTousCoupsPersonnage(Personnage pf) {
             List<Coup> coups = new ArrayList();
-            // Deplacements seuls
+            // Coup nul
             coups.add(new Coup(pf, new ArrayList()));
+            
+            // Deplacements seuls
             List<Deplacement> deplacementsTheoriques = pf.getDeplacements();
             List<Deplacement> deplacementsVerifies = new ArrayList();
             for (Deplacement d : deplacementsTheoriques) {
@@ -396,6 +398,7 @@ public class Partie {
                     coups.add(new Coup(pf, d));
                 }
             }
+            
             // Attaques seules
             for (Sort sort : pf.getAttaques()) {
                 List<Position> cibles = sort.getZone().getCasesAccessible(pf.getPosition());
@@ -405,6 +408,7 @@ public class Partie {
                     }
                 }
             }
+            
             return coups;
         }
         

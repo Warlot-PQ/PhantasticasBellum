@@ -21,6 +21,10 @@ import Model.Position;
  */
 
 public class ControleurCombat extends AbstractControleurJeu {
+        /**
+         * Nombre maximal d'actions par tour d'un personnage (1 ou 2)
+         */
+        static private final boolean UNE_SEULE_ACTION_PAR_TOUR = true;
 	//Case cliquable, sauvegarde du status du plateau, utile lors des actions de souris (click, entered, exited)
 	private List<Position> caseClickable = new ArrayList<Position>();
 	
@@ -59,10 +63,13 @@ public class ControleurCombat extends AbstractControleurJeu {
 	
 		if (getPartie().isDeplacementEnCours() && deplacement){
 			//si deplacement alors on se deplace
-			if (getPartie().setPositionPersonnage(
-					maPosition
-				)){
+			if (getPartie().setPositionPersonnage(maPosition)){
 				deplacement = false;
+                                if (UNE_SEULE_ACTION_PAR_TOUR) {
+                                    //empecher toute attaque
+                                    ((VueJoueurCombat) getVue().getPanelJoueurActuel()).verouillerChoixAttaque();
+                                    attaque = false;
+                                }
 			}
 			
 			
@@ -89,6 +96,11 @@ public class ControleurCombat extends AbstractControleurJeu {
 
 			//si attaque multiple
 			if (getAttaqueActif().isAttaqueMultiple()){
+                            if (UNE_SEULE_ACTION_PAR_TOUR) {
+                                //empecher tout deplacement
+                                ((VueJoueurCombat) getVue().getPanelJoueurActuel()).verouillerChoixDeplacement();
+                                deplacement = false;
+                            }
 				if (!coupsRestant){
 					attaque = false;
 				} else {
@@ -248,6 +260,7 @@ public class ControleurCombat extends AbstractControleurJeu {
 		int porteeMin = oA.getPorteeMin();
 		int porteeMax = oA.getPorteeMax();
 		
+                this.caseClickable.clear();
 		if (porteeMax != - 1){
 			Matrice porteePersonnage = new Matrice(porteeMin, porteeMax, false);
 			
@@ -255,21 +268,25 @@ public class ControleurCombat extends AbstractControleurJeu {
                         List<Position> caseInaccessible = getPartie().getToutesPositions();
                         caseInaccessible.removeAll(caseAccessible);
 
-			//Sauvegarde des cases cliquables
-			this.caseClickable = caseAccessible;
+			//Filtrage des cases avec un personnage dessus
+                        //Sauvegarde des cases cliquables
+                        for (Position p : caseAccessible) {
+                            if (!getPartie().isCaseLibre(p)) {
+                                this.caseClickable.add(p);
+                            }
+                        }
 			
 			for (Position maPosition : caseInaccessible){
 				//Enregistrer les cases
 				getVue().getPanelPlateau().caseNonCiblable(maPosition);
 			}
 		} else {
-			//Toute la map est attaquable
-			
+			//Toutes les cases occupées sont attaquables
 			//Sauvegarde des cases cliquables
-			for (int y = 0; y < getVue().getPanelPlateau().getHauteur(); y += 1){
-				for (int x = 0; x < getVue().getPanelPlateau().getHauteur(); x += 1){
-					this.caseClickable.add(new Position(x, y));
-				}
+                        for (Position p : getPartie().getToutesPositions()) {
+                            if (!getPartie().isCaseLibre(p)) {
+                                this.caseClickable.add(p);
+                            }
 			}
 			
 			//Enregistrer les cases

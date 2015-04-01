@@ -9,7 +9,7 @@ import GUI.Vue2.VueParamJoueur;
 import GUI.Vue3.VueJeuCombat;
 import GUI.Vue3.VueJeuPlacement;
 import GUI.Vue4.VueFinJeu;
-import IA.IA;
+import IA.AbstractIA;
 import IA.IAAleatoire;
 import IA.IAThread;
 import Model.*;
@@ -158,7 +158,7 @@ public class ControleurFenetre {
 							getPartie().getJoueurActuel()
 						)
 					);
-                        if (getPartie().getJoueurActuel() instanceof IA) {
+                        if (getPartie().getJoueurActuel() instanceof AbstractIA) {
                             coupSuivant();
                             tourSuivant();
                         }
@@ -253,10 +253,10 @@ public class ControleurFenetre {
 					)
 				);
                 
-                if (getPartie().getJoueurActuel() instanceof IA) {
+                if (getPartie().getJoueurActuel() instanceof AbstractIA) {
                     coupSuivant();
                 }
-            } while (getPartie().getJoueurActuel() instanceof IA);
+            } while (getPartie().getJoueurActuel() instanceof AbstractIA);
                 
 	}
         
@@ -264,14 +264,14 @@ public class ControleurFenetre {
          * Passe au coup suivant et joue ce coup pour les joueurs artificiels
          */
         public synchronized void coupSuivant() {
-            if (getPartie().getJoueurActuel() instanceof IA) {
+            if (getPartie().getJoueurActuel() instanceof AbstractIA) {
                 System.out.println(Thread.currentThread().getName()+": "+"==========================================================================");
                 ExecutorService executor = Executors.newSingleThreadExecutor();
-                IA ia = (IA) getPartie().getJoueurActuel();
+                AbstractIA ia = (AbstractIA) getPartie().getJoueurActuel();
                 IAThread calcul = new IAThread(ia, getPartie(), executor);
                 executor.execute(calcul);
                 try {
-                    if (!executor.awaitTermination(IA.DELAY, TimeUnit.MILLISECONDS))
+                    if (!executor.awaitTermination(AbstractIA.DELAI_DE_REFLEXION, TimeUnit.MILLISECONDS))
                     {
                         // Forcer la fin du thread du joueur artificiel
                         System.out.println(Thread.currentThread().getName()+": "+"Forcer l'interruption");

@@ -51,7 +51,7 @@ public class Equipe {
         }
 	
 	/**
-	 * Lance l'attaque sur les Personnage cibles
+	 * Lance l'attaque sur les personnages cibles
 	 * @return String : le resultat de l'attaque
 	 */
 	public List<String> lancerAttaque(){
@@ -72,7 +72,7 @@ public class Equipe {
 	}
 		
 	/**
-	 * Indique que tous les Personnage sont places
+	 * Indique que tous les personnages sont places
 	 * @throws ExceptionPersonnage exception de placement
 	 */
 	public void personnagesTousPlaces() throws ExceptionPersonnage{

@@ -115,6 +115,26 @@ public class Joueur {
 	public boolean IsPassifEnCours(){
 		return getEquipe().isPassifEnCours();
 	}
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this){
+                    return true;
+            }
+            if (!(obj instanceof Joueur)){
+                    return false;
+            }
+            Joueur temp = (Joueur) obj;
+            return (this.getClass().equals(obj.getClass()) && this.hashCode() == temp.hashCode());
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 59 * hash + (this.nom != null ? this.nom.hashCode() : 0);
+            hash = 59 * hash + (this.couleur != null ? this.couleur.hashCode() : 0);
+            return hash;
+        }
 	
 	/**
 	 * Incremente le nombre de victoire

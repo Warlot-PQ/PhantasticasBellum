@@ -16,7 +16,7 @@ public class IAThread extends Thread {
     /**
      * Joueur artificiel
      */
-    private final IA ia;
+    private final AbstractIA ia;
 
     /**
      * Partie en cours
@@ -39,7 +39,7 @@ public class IAThread extends Thread {
      * @param partie Partie en cours
      * @param executor Service d'execution du thread
      */
-    public IAThread(IA ia, Partie partie, ExecutorService executor) {
+    public IAThread(AbstractIA ia, Partie partie, ExecutorService executor) {
         this.ia = ia;
         this.partie = partie;
         this.executor = executor;

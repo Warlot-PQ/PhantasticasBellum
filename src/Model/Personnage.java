@@ -316,7 +316,7 @@ public abstract class Personnage extends Observable implements Cloneable{
 	 * @param vie int
 	 */
 	public void setVie(int vie) {
-		this.vie = vie;
+		this.vie = Math.max(0, Math.min(maxVie, vie));
 	}
 
 	/**
