@@ -1,15 +1,14 @@
 package GuDuWa;
 
 import java.util.List;
-import java.util.ArrayList;
 
 import Controleur.Partie;
-import IA.IA;
+import IA.*;
 import Model.Coup;
 import Model.Joueur;
 import Model.Personnage;
 
-public class MonIA extends IA {
+public class MonIA extends AbstractIA {
 	private int aplha = 50;
 	private int beta = -50;
 	
@@ -40,7 +39,7 @@ public class MonIA extends IA {
 		
 		if (profondeur == 0) {
 			//Si profondeur max atteinte
-			return heuristique(joueur);
+			return heuristique_plateau(model);
 		} else if (partieFini) {
 			//Si la partie est terminée
 			
@@ -163,9 +162,17 @@ public class MonIA extends IA {
 	 * @return personnage choisi
 	 */
 	private Personnage choix_personnage(List<Personnage> personnageEquipe) {
+		Personnage persoChoisi = null;
 		
-		//PQ
+		for (Personnage persoAutre : personnageEquipe) {
+			if (persoChoisi == null
+					|| facteur_puissance(persoAutre) < facteur_puissance(persoAutre)
+					) {
+				persoChoisi = persoAutre;
+			}
+		}
 		
+		return persoChoisi;
 	}
 
 	/**
