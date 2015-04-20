@@ -31,20 +31,20 @@ public class MonIA extends AbstractIA {
 	@Override
 	public Coup getCoup(Partie p) {
 
-		alphaBeta(p, p.getJoueurActuel(), this.aplha, this.beta, true, this.profondeur);
+		alphaBeta(p.clone(), this.aplha, this.beta, true, this.profondeur);
 		
 		return getCoupMemorise();
 	}
 	
 	//TODO ici chaque joueur joue à tour de role. En réalité un joueur peut jouer deux fois il l'autre possède un personnage de moins.
 	
-	public int alphaBeta(Partie model, Joueur joueur, int alpha, int beta, boolean noeudMax, int profondeur) {
-		Partie modelClone = model.clone();
+	public int alphaBeta(Partie modelClone, int alpha, int beta, boolean noeudMax, int profondeur) {
+		Joueur joueur = modelClone.getJoueurActuel();
 		boolean partieFini = modelClone.estTerminee();
 		
 		if (profondeur == 0) {
 			//Si profondeur max atteinte
-			return heuristique_plateau(model);
+			return heuristique_plateau(modelClone);
 		} else if (partieFini) {
 			//Si la partie est terminée
 			
@@ -91,10 +91,12 @@ public class MonIA extends AbstractIA {
 				for(Coup coupJoue : listeCoup) {
 					//Applique l'action et passe au joueur suivant
 					modelClone.appliquerCoup(coupJoue);
-					model.joueurSuivant();
+					modelClone.joueurSuivant();
 					
 					//Noeud suivant
-					alphaCourant = alphaBeta(modelClone, model.getJoueurActuel(), alpha, beta, !noeudMax, profondeur - 1);
+					alphaCourant = alphaBeta(modelClone, alpha, beta, !noeudMax, profondeur - 1);
+
+					modelClone.joueurSuivant();
 					
 					if (alphaCourant > alpha) {
 						//Si un meilleur coups est trouvé
@@ -123,10 +125,12 @@ public class MonIA extends AbstractIA {
 				for(Coup coupJoue : listeCoup) {
 					//Applique l'action et passe au joueur suivant
 					modelClone.appliquerCoup(coupJoue);
-					model.joueurSuivant();
+					modelClone.joueurSuivant();
 					
 					//Noeud suivant
-					betaCourant = alphaBeta(modelClone, model.getJoueurActuel(), alpha, beta, !noeudMax, profondeur - 1);
+					betaCourant = alphaBeta(modelClone, alpha, beta, !noeudMax, profondeur - 1);
+
+					modelClone.joueurSuivant();
 					
 					if (betaCourant > alpha) {
 						//Si meilleur coups trouvé
