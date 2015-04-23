@@ -11,21 +11,15 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import Controleur.Partie;
-import IA.AbstractIA;
+import IA.*;
 import Model.Coup;
 import Model.Joueur;
 import Model.Personnage;
 
 public class MonIA extends AbstractIA {
-	private int aplha = 50;
+	private int alpha = 50;
 	private int beta = -50;
-	
-	public FacteurPuissance factPuiss=null;
-	
 	private int profondeur = 5;
-	
-	private int valeurMeilleurCoup = 0;
-	private Coup monMeilleurCoup = null;
 	
 	public MonIA(String nom) {
 		super(nom);
@@ -33,45 +27,45 @@ public class MonIA extends AbstractIA {
 
 	@Override
 	public Coup getCoup(Partie p) {
-		if (factPuiss==null) {factPuiss = new FacteurPuissance(p);} // Pour permettre le premier calcul dudit facteur. David !!
-					// ou FacteurPuissance( p, coefPv, coefAtt, coefDepl);
 
-
-		alphaBeta(p.clone(), this.aplha, this.beta, true, this.profondeur);
+		alphaBeta(p.clone(), this.beta, this.alpha, false, this.profondeur);
 		
 		return getCoupMemorise();
 	}
 	
-	//TODO ici chaque joueur joue Ã  tour de role. En rÃ©alitÃ© un joueur peut jouer deux fois il l'autre possÃ¨de un personnage de moins.
+	//TODO ici chaque joueur joue à tour de role. En réalité un joueur peut jouer deux fois il l'autre possède un personnage de moins.
 	
 	public int alphaBeta(Partie modelClone, int alpha, int beta, boolean noeudMax, int profondeur) {
+		System.out.println("Max : " + noeudMax + ", profondeur " + profondeur);
+		
+		modelClone.tourSuivant();
 		Joueur joueur = modelClone.getJoueurActuel();
 		boolean partieFini = modelClone.estTerminee();
 		
 		if (profondeur == 0) {
 			//Si profondeur max atteinte
+			System.out.println("------Profondeur max atteinte.------");
 			return heuristique_plateau(modelClone);
 		} else if (partieFini) {
-			//Si la partie est terminÃ©e
-			
-			modelClone.joueurSuivant();
-			boolean partieGagne = modelClone.getJoueurActuel().estBattu();
-			
-			modelClone.joueurSuivant();
-			boolean partiePerdu = modelClone.getJoueurActuel().estBattu();
+			//Si la partie est terminée
+			boolean partieGagne = modelClone.listerEquipesAdverses().isEmpty();
+			boolean partiePerdu = modelClone.listerEquipes().isEmpty();
 			
 			if (partieGagne) {
-				//TerminÃ©e et gagnÃ©e => retourner la valeur maximum
-				return this.aplha;
+				//Terminée et gagnée => retourner la valeur maximum
+				System.out.println("------Partie gagné.------");
+				return this.alpha;
 			} else if (partiePerdu) {
-				//TerminÃ©e et perdu => retourner la valeur minimum
+				//Terminée et perdu => retourner la valeur minimum
+				System.out.println("------Partie perdu.------");
 				return this.beta;
 			} else {
-				//TerminÃ©e et match nul => retourner la valeur moyenne
-				return (this.beta + this.aplha) / 2;
+				//Terminée et match nul => retourner la valeur moyenne
+				System.out.println("------Partie nulle.------");
+				return (this.beta + this.alpha) / 2;
 			}
 		} else {
-			//Profondeur non atteinte et partie non terminÃ©e
+			//Profondeur non atteinte et partie non terminée
 			Personnage personnageChoisi;
 			List<Coup> listeCoup;
 			int alphaCourant;
@@ -86,29 +80,31 @@ public class MonIA extends AbstractIA {
 				//Choisie un personnage parmis ceux disponible 
 				personnageChoisi = choix_personnage(modelClone.getJoueurActuel().getEquipe().);
 				
-				//RÃ©cupÃ©re toutes les actions possibles du personnage selectionnÃ©
+				//Récupére toutes les actions possibles du personnage selectionné
 				listeAction = modelClone.getTousCoupsPersonnage(personnageChoisi);
 				*/
 				listeCoup = modelClone.getTousCoups();
 				
+				System.out.println("Nb coup avant trie : " + listeCoup.size());
+				
 				//Ordonne et elague la liste de coup
 				listeCoup = (List<Coup>) ordonne_coup_puis_elague(listeCoup, Integer.MAX_VALUE);
+
+				System.out.println("Nb coup après trie : " + listeCoup.size());
 				
 				for(Coup coupJoue : listeCoup) {
 					//Applique l'action et passe au joueur suivant
 					modelClone.appliquerCoup(coupJoue);
-					modelClone.joueurSuivant();
 					
 					//Noeud suivant
-					alphaCourant = alphaBeta(modelClone, alpha, beta, !noeudMax, profondeur - 1);
+					alphaCourant = alphaBeta(modelClone.clone(), alpha, beta, !noeudMax, profondeur - 1);
 
-					modelClone.joueurSuivant();
-					
 					if (alphaCourant > alpha) {
-						//Si un meilleur coups est trouvÃ©
+						//Si un meilleur coups est trouvé
 						alpha = alphaCourant;
 						//Sauvegarde le coup si on est au premier niveau de profondeur
 						if (profondeur == this.profondeur) {
+							System.out.println("------Coup mémorisé.------");
 							memoriseCoup(coupJoue);
 						}
 					}
@@ -122,7 +118,7 @@ public class MonIA extends AbstractIA {
 			} else {
 				//A l'adversaire de jouer
 				
-				//RÃ©cupÃ©re toutes les actions possibles des personnages adverses
+				//Récupére toutes les actions possibles des personnages adverses
 				listeCoup = modelClone.getTousCoups();
 				
 				//Ordonne et elague la liste de coup
@@ -131,15 +127,12 @@ public class MonIA extends AbstractIA {
 				for(Coup coupJoue : listeCoup) {
 					//Applique l'action et passe au joueur suivant
 					modelClone.appliquerCoup(coupJoue);
-					modelClone.joueurSuivant();
 					
 					//Noeud suivant
-					betaCourant = alphaBeta(modelClone, alpha, beta, !noeudMax, profondeur - 1);
+					betaCourant = alphaBeta(modelClone.clone(), alpha, beta, !noeudMax, profondeur - 1);
 
-					modelClone.joueurSuivant();
-					
 					if (betaCourant > alpha) {
-						//Si meilleur coups trouvÃ©
+						//Si meilleur coups trouvé
 						beta = betaCourant;
 					}
 					//Coupure alpha
@@ -154,20 +147,20 @@ public class MonIA extends AbstractIA {
 	}
 	
 	/**
-	 * Calcul l'heuristique de la partie (l'ï¿½value) passï¿½ en paramï¿½tre et retourne la valeur calculï¿½
-	 * @param maPartie partie ï¿½ ï¿½valuer
+	 * Calcul l'heuristique de la partie (l'évalue) passé en paramètre et retourne la valeur calculé
+	 * @param maPartie partie à évaluer
 	 * @return valeur du plateau
 	 */
 	private int heuristique_plateau(Partie maPartie) {
+		
 		//Thomas
-		HeuristiquePlateau heuristiquePlateau = new HeuristiquePlateau(maPartie);
-		return heuristiquePlateau.calculHeuristique();
-	}
 
+		return 0;
+	}
 	/**
-	 * Calcul l'heuristique de chaque coup (sa valeur), ordonne par ordre dÃ©croissant et ne garde que les nbCoupRetour premiers
-	 * @param listeCoup liste de coup Ã  Ã©valuÃ©, ordonnÃ© et Ã©laguer
-	 * @param nbCoupRetour nombre de coup conservÃ© aprÃ¨s Ã©laguage
+	 * Calcul l'heuristique de chaque coup (sa valeur), ordonne par ordre décroissant et ne garde que les nbCoupRetour premiers
+	 * @param listeCoup liste de coup à évalué, ordonné et élaguer
+	 * @param nbCoupRetour nombre de coup conservé après élaguage
 	 */
 	private Collection<Coup> ordonne_coup_puis_elague(List<Coup> listeCoup, int nbCoupRetour) {
 		int nombreCoup = listeCoup.size();
@@ -202,7 +195,7 @@ public class MonIA extends AbstractIA {
 	}
 
 	/**
-	 * Choisie et retourne le personnage le plus puissant dans la liste passÃ© en paramÃ¨tre
+	 * Choisie et retourne le personnage le plus puissant dans la liste passé en paramètre
 	 * @param personnageEquipe liste de personnage
 	 * @return personnage choisi
 	 */
@@ -221,21 +214,25 @@ public class MonIA extends AbstractIA {
 	}
 
 	/**
-	 * Calcul l'heuristique du coup (l'Ã©value) passÃ© en paramÃ¨tre et retourne la valeur calculÃ©
-	 * @param monCoup coup Ã  Ã©valuer
+	 * Calcul l'heuristique du coup (l'évalue) passé en paramètre et retourne la valeur calculé
+	 * @param monCoup coup à évaluer
 	 * @return valeur du coup
 	 */
 	private int heuristique_coup(Coup monCoup) {
 		
+
 		return 0;
 	}
 	
 	/**
-	 * Calcul du facteur de puissance d'un personnage (importance de personnage en dÃ©but de partie)
-	 * @param monPerso personne Ã  Ã©valuer
+	 * Calcul du facteur de puissance d'un personnage (importance de personnage en début de partie)
+	 * @param monPerso personne à évaluer
 	 * @return facteur de puissance
-	 * @author David Dufresne
 	 */
-	private double facteur_puissance(Personnage monPerso){	return factPuiss.facteur_puissance(monPerso);}
-
+	private int facteur_puissance(Personnage monPerso) {
+		
+		//David
+		
+		return 0;
+	}
 }
