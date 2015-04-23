@@ -19,7 +19,7 @@ import Model.Personnage;
 public class MonIA extends AbstractIA {
 	private int alpha = 50;
 	private int beta = -50;
-	private int profondeur = 5;
+	private int profondeur = 1;
 	
 	public MonIA(String nom) {
 		super(nom);
@@ -29,6 +29,10 @@ public class MonIA extends AbstractIA {
 	public Coup getCoup(Partie p) {
 
 		alphaBeta(p.clone(), this.beta, this.alpha, false, this.profondeur);
+		
+		System.out.println("---------------------");
+		System.out.println(getCoupMemorise());
+		System.out.println("---------------------");
 		
 		return getCoupMemorise();
 	}
@@ -44,7 +48,7 @@ public class MonIA extends AbstractIA {
 		
 		if (profondeur == 0) {
 			//Si profondeur max atteinte
-			System.out.println("------Profondeur max atteinte.------");
+//			System.out.println("------Profondeur max atteinte.------");
 			return heuristique_plateau(modelClone);
 		} else if (partieFini) {
 			//Si la partie est terminée
@@ -53,15 +57,15 @@ public class MonIA extends AbstractIA {
 			
 			if (partieGagne) {
 				//Terminée et gagnée => retourner la valeur maximum
-				System.out.println("------Partie gagné.------");
+//				System.out.println("------Partie gagné.------");
 				return this.alpha;
 			} else if (partiePerdu) {
 				//Terminée et perdu => retourner la valeur minimum
-				System.out.println("------Partie perdu.------");
+//				System.out.println("------Partie perdu.------");
 				return this.beta;
 			} else {
 				//Terminée et match nul => retourner la valeur moyenne
-				System.out.println("------Partie nulle.------");
+//				System.out.println("------Partie nulle.------");
 				return (this.beta + this.alpha) / 2;
 			}
 		} else {
@@ -85,16 +89,14 @@ public class MonIA extends AbstractIA {
 				*/
 				listeCoup = modelClone.getTousCoups();
 				
-				System.out.println("Nb coup avant trie : " + listeCoup.size());
-				
 				//Ordonne et elague la liste de coup
 				listeCoup = (List<Coup>) ordonne_coup_puis_elague(listeCoup, Integer.MAX_VALUE);
 
-				System.out.println("Nb coup après trie : " + listeCoup.size());
-				
 				for(Coup coupJoue : listeCoup) {
-					//Applique l'action et passe au joueur suivant
-					modelClone.appliquerCoup(coupJoue);
+					//Applique l'action si action différente de passer son tour
+					if (coupJoue.getActions().isEmpty()) {
+						modelClone.appliquerCoup(coupJoue);
+					}
 					
 					//Noeud suivant
 					alphaCourant = alphaBeta(modelClone.clone(), alpha, beta, !noeudMax, profondeur - 1);
@@ -125,8 +127,10 @@ public class MonIA extends AbstractIA {
 				listeCoup = (List<Coup>) ordonne_coup_puis_elague(listeCoup, Integer.MAX_VALUE);
 				
 				for(Coup coupJoue : listeCoup) {
-					//Applique l'action et passe au joueur suivant
-					modelClone.appliquerCoup(coupJoue);
+					//Applique l'action si action différente de passer son tour
+					if (coupJoue.getActions().isEmpty()) {
+						modelClone.appliquerCoup(coupJoue);
+					}
 					
 					//Noeud suivant
 					betaCourant = alphaBeta(modelClone.clone(), alpha, beta, !noeudMax, profondeur - 1);
