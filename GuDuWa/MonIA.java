@@ -18,7 +18,7 @@ public class MonIA extends AbstractIA {
 	FacteurPuissance monFacteurPuissance;
 	private int alpha = 50;
 	private int beta = -50;
-	private int profondeur = 1;
+	private int profondeur = 2;
 	
 	public MonIA(String nom) {
 		super(nom);
@@ -136,8 +136,8 @@ public class MonIA extends AbstractIA {
 					//Noeud suivant
 					betaCourant = alphaBeta(modelClone, alpha, beta, !noeudMax, profondeur - 1);
 
-					if (betaCourant > alpha) {
-						//Si meilleur coups trouvé
+					if (betaCourant < beta) {
+						//Si pire coups trouvé
 						beta = betaCourant;
 					}
 					//Coupure alpha
