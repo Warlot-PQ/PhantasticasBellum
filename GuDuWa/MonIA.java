@@ -42,7 +42,7 @@ public class MonIA extends AbstractIA {
 		return getCoupMemorise();
 	}
 	
-	//TODO ici chaque joueur joue à tour de role. En réalité un joueur peut jouer deux fois il l'autre possède un personnage de moins.
+	//TODO ici chaque joueur joue Ã  tour de role. En rÃ©alitÃ© un joueur peut jouer deux fois il l'autre possÃ¨de un personnage de moins.
 	
 	public int alphaBeta(Partie model, Joueur joueur, int alpha, int beta, boolean noeudMax, int profondeur) {
 		Partie modelClone = model.clone();
@@ -52,7 +52,7 @@ public class MonIA extends AbstractIA {
 			//Si profondeur max atteinte
 			return heuristique_plateau(model);
 		} else if (partieFini) {
-			//Si la partie est terminée
+			//Si la partie est terminÃ©e
 			
 			modelClone.joueurSuivant();
 			boolean partieGagne = modelClone.getJoueurActuel().estBattu();
@@ -61,17 +61,17 @@ public class MonIA extends AbstractIA {
 			boolean partiePerdu = modelClone.getJoueurActuel().estBattu();
 			
 			if (partieGagne) {
-				//Terminée et gagnée => retourner la valeur maximum
+				//TerminÃ©e et gagnÃ©e => retourner la valeur maximum
 				return this.aplha;
 			} else if (partiePerdu) {
-				//Terminée et perdu => retourner la valeur minimum
+				//TerminÃ©e et perdu => retourner la valeur minimum
 				return this.beta;
 			} else {
-				//Terminée et match nul => retourner la valeur moyenne
+				//TerminÃ©e et match nul => retourner la valeur moyenne
 				return (this.beta + this.aplha) / 2;
 			}
 		} else {
-			//Profondeur non atteinte et partie non terminée
+			//Profondeur non atteinte et partie non terminÃ©e
 			Personnage personnageChoisi;
 			List<Coup> listeCoup;
 			int alphaCourant;
@@ -86,7 +86,7 @@ public class MonIA extends AbstractIA {
 				//Choisie un personnage parmis ceux disponible 
 				personnageChoisi = choix_personnage(modelClone.getJoueurActuel().getEquipe().);
 				
-				//Récupére toutes les actions possibles du personnage selectionné
+				//RÃ©cupÃ©re toutes les actions possibles du personnage selectionnÃ©
 				listeAction = modelClone.getTousCoupsPersonnage(personnageChoisi);
 				*/
 				listeCoup = modelClone.getTousCoups();
@@ -103,7 +103,7 @@ public class MonIA extends AbstractIA {
 					alphaCourant = alphaBeta(modelClone, model.getJoueurActuel(), alpha, beta, !noeudMax, profondeur - 1);
 					
 					if (alphaCourant > alpha) {
-						//Si un meilleur coups est trouvé
+						//Si un meilleur coups est trouvÃ©
 						alpha = alphaCourant;
 						//Sauvegarde le coup si on est au premier niveau de profondeur
 						if (profondeur == this.profondeur) {
@@ -120,7 +120,7 @@ public class MonIA extends AbstractIA {
 			} else {
 				//A l'adversaire de jouer
 				
-				//Récupére toutes les actions possibles des personnages adverses
+				//RÃ©cupÃ©re toutes les actions possibles des personnages adverses
 				listeCoup = modelClone.getTousCoups();
 				
 				//Ordonne et elague la liste de coup
@@ -135,7 +135,7 @@ public class MonIA extends AbstractIA {
 					betaCourant = alphaBeta(modelClone, model.getJoueurActuel(), alpha, beta, !noeudMax, profondeur - 1);
 					
 					if (betaCourant > alpha) {
-						//Si meilleur coups trouvé
+						//Si meilleur coups trouvÃ©
 						beta = betaCourant;
 					}
 					//Coupure alpha
@@ -150,19 +150,20 @@ public class MonIA extends AbstractIA {
 	}
 	
 	/**
-	 * Calcul l'heuristique de la partie (l'évalue) passé en paramètre et retourne la valeur calculé
-	 * @param maPartie partie à évaluer
+	 * Calcul l'heuristique de la partie (l'ï¿½value) passï¿½ en paramï¿½tre et retourne la valeur calculï¿½
+	 * @param maPartie partie ï¿½ ï¿½valuer
 	 * @return valeur du plateau
 	 */
 	private int heuristique_plateau(Partie maPartie) {
-		
 		//Thomas
-		return 0;
+		HeuristiquePlateau heuristiquePlateau = new HeuristiquePlateau(maPartie);
+		return heuristiquePlateau.calculHeuristique();
 	}
+
 	/**
-	 * Calcul l'heuristique de chaque coup (sa valeur), ordonne par ordre décroissant et ne garde que les nbCoupRetour premiers
-	 * @param listeCoup liste de coup à évalué, ordonné et élaguer
-	 * @param nbCoupRetour nombre de coup conservé après élaguage
+	 * Calcul l'heuristique de chaque coup (sa valeur), ordonne par ordre dÃ©croissant et ne garde que les nbCoupRetour premiers
+	 * @param listeCoup liste de coup Ã  Ã©valuÃ©, ordonnÃ© et Ã©laguer
+	 * @param nbCoupRetour nombre de coup conservÃ© aprÃ¨s Ã©laguage
 	 */
 	private Collection<Coup> ordonne_coup_puis_elague(List<Coup> listeCoup, int nbCoupRetour) {
 		int nombreCoup = listeCoup.size();
@@ -197,7 +198,7 @@ public class MonIA extends AbstractIA {
 	}
 
 	/**
-	 * Choisie et retourne le personnage le plus puissant dans la liste passé en paramètre
+	 * Choisie et retourne le personnage le plus puissant dans la liste passÃ© en paramÃ¨tre
 	 * @param personnageEquipe liste de personnage
 	 * @return personnage choisi
 	 */
@@ -216,8 +217,8 @@ public class MonIA extends AbstractIA {
 	}
 
 	/**
-	 * Calcul l'heuristique du coup (l'évalue) passé en paramètre et retourne la valeur calculé
-	 * @param monCoup coup à évaluer
+	 * Calcul l'heuristique du coup (l'Ã©value) passÃ© en paramÃ¨tre et retourne la valeur calculÃ©
+	 * @param monCoup coup Ã  Ã©valuer
 	 * @return valeur du coup
 	 */
 	private int heuristique_coup(Coup monCoup) {
@@ -226,8 +227,8 @@ public class MonIA extends AbstractIA {
 	}
 	
 	/**
-	 * Calcul du facteur de puissance d'un personnage (importance de personnage en début de partie)
-	 * @param monPerso personne à évaluer
+	 * Calcul du facteur de puissance d'un personnage (importance de personnage en dÃ©but de partie)
+	 * @param monPerso personne Ã  Ã©valuer
 	 * @return facteur de puissance
 	 * @author David Dufresne
 	 */
