@@ -1,6 +1,14 @@
 package GuDuWa;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import Controleur.Partie;
 import IA.AbstractIA;
@@ -11,7 +19,13 @@ import Model.Personnage;
 public class MonIA extends AbstractIA {
 	private int aplha = 50;
 	private int beta = -50;
-	public FacteurPuissance f=null;
+	
+	public FacteurPuissance factPuiss=null;
+	
+	private int profondeur = 5;
+	
+	private int valeurMeilleurCoup = 0;
+	private Coup monMeilleurCoup = null;
 	
 	public MonIA(String nom) {
 		super(nom);
@@ -19,20 +33,16 @@ public class MonIA extends AbstractIA {
 
 	@Override
 	public Coup getCoup(Partie p) {
-		if (f==null) {f = new FacteurPuissance(p);} // Pour permettre le premier calcul dudit facteur. David !!
+		if (factPuiss==null) {factPuiss = new FacteurPuissance(p);} // Pour permettre le premier calcul dudit facteur. David !!
 					// ou FacteurPuissance( p, coefPv, coefAtt, coefDepl);
+
+
+		alphaBeta(p, p.getJoueurActuel(), this.aplha, this.beta, true, this.profondeur);
 		
-		
-		alphaBeta(p, p.getJoueurActuel(), this.aplha, this.beta, true, 5);
-		
-		
-		
-		
-		return null;
+		return getCoupMemorise();
 	}
 	
 	//TODO ici chaque joueur joue à tour de role. En réalité un joueur peut jouer deux fois il l'autre possède un personnage de moins.
-	//TODO classé les fils dans l'ordre
 	
 	public int alphaBeta(Partie model, Joueur joueur, int alpha, int beta, boolean noeudMax, int profondeur) {
 		Partie modelClone = model.clone();
@@ -46,8 +56,8 @@ public class MonIA extends AbstractIA {
 			
 			modelClone.joueurSuivant();
 			boolean partieGagne = modelClone.getJoueurActuel().estBattu();
-			modelClone.joueurSuivant();
 			
+			modelClone.joueurSuivant();
 			boolean partiePerdu = modelClone.getJoueurActuel().estBattu();
 			
 			if (partieGagne) {
@@ -63,7 +73,7 @@ public class MonIA extends AbstractIA {
 		} else {
 			//Profondeur non atteinte et partie non terminée
 			Personnage personnageChoisi;
-			List<Coup> listeAction;
+			List<Coup> listeCoup;
 			int alphaCourant;
 			int betaCourant;
 			
@@ -71,23 +81,22 @@ public class MonIA extends AbstractIA {
 				//A moi de jouer
 				
 				/*
+				 * Pas de filtrage sur les personnages pour le moment
+				 * 
 				//Choisie un personnage parmis ceux disponible 
-				personnageChoisi = choixPersonnage(modelClone.getJoueurActuel().getEquipe().);
+				personnageChoisi = choix_personnage(modelClone.getJoueurActuel().getEquipe().);
 				
 				//Récupére toutes les actions possibles du personnage selectionné
 				listeAction = modelClone.getTousCoupsPersonnage(personnageChoisi);
 				*/
-				listeAction = modelClone.getTousCoups();
+				listeCoup = modelClone.getTousCoups();
 				
-				//Ordonne les actions
-				//ordonneActions(listeAction);
+				//Ordonne et elague la liste de coup
+				listeCoup = (List<Coup>) ordonne_coup_puis_elague(listeCoup, Integer.MAX_VALUE);
 				
-				//Elague la liste en fonction de la profondeur
-				//elaguageActions(listeAction, profondeur);
-				
-				for(Coup action : listeAction) {
+				for(Coup coupJoue : listeCoup) {
 					//Applique l'action et passe au joueur suivant
-					modelClone.appliquerCoup(action);
+					modelClone.appliquerCoup(coupJoue);
 					model.joueurSuivant();
 					
 					//Noeud suivant
@@ -96,6 +105,10 @@ public class MonIA extends AbstractIA {
 					if (alphaCourant > alpha) {
 						//Si un meilleur coups est trouvé
 						alpha = alphaCourant;
+						//Sauvegarde le coup si on est au premier niveau de profondeur
+						if (profondeur == this.profondeur) {
+							memoriseCoup(coupJoue);
+						}
 					}
 					//Coupure beta
 					if (alpha >= beta) {
@@ -108,14 +121,14 @@ public class MonIA extends AbstractIA {
 				//A l'adversaire de jouer
 				
 				//Récupére toutes les actions possibles des personnages adverses
-				listeAction = modelClone.getTousCoups();
+				listeCoup = modelClone.getTousCoups();
 				
-				//Elague la liste en fonction de la profondeur
-				//elaguageActions(listeAction, profondeur);
+				//Ordonne et elague la liste de coup
+				listeCoup = (List<Coup>) ordonne_coup_puis_elague(listeCoup, Integer.MAX_VALUE);
 				
-				for(Coup action : listeAction) {
+				for(Coup coupJoue : listeCoup) {
 					//Applique l'action et passe au joueur suivant
-					modelClone.appliquerCoup(action);
+					modelClone.appliquerCoup(coupJoue);
 					model.joueurSuivant();
 					
 					//Noeud suivant
@@ -151,10 +164,36 @@ public class MonIA extends AbstractIA {
 	 * @param listeCoup liste de coup à évalué, ordonné et élaguer
 	 * @param nbCoupRetour nombre de coup conservé après élaguage
 	 */
-	private void ordonne_coup_puis_elague(List<Coup> listeCoup, int nbCoupRetour) {
+	private Collection<Coup> ordonne_coup_puis_elague(List<Coup> listeCoup, int nbCoupRetour) {
+		int nombreCoup = listeCoup.size();
+		ArrayList<Coup> coupTrie = new ArrayList();
 		
+		Map<Integer, List<Coup>> coupsEtValeurs = new TreeMap();
 		
+		//Ordonner les coups par ordre croissant
+		for (Coup monCoup : listeCoup) {
+			int valeurCoup = heuristique_coup(monCoup);
+			
+			if (coupsEtValeurs.containsKey(valeurCoup) == false) {
+				coupsEtValeurs.put(valeurCoup, new ArrayList<Coup>());
+			}
+			coupsEtValeurs.get(valeurCoup).add(monCoup);
+		}
 		
+		int compteurCoup = 0;
+		//Ne selectionne que les N derniers
+		for (Map.Entry<Integer, List<Coup>> coupEtValeur : coupsEtValeurs.entrySet()) {
+			compteurCoup += coupEtValeur.getValue().size();
+			
+			if (nombreCoup - compteurCoup <= nbCoupRetour) {
+				for (Coup monCoup : coupEtValeur.getValue()) {
+					coupTrie.add(monCoup);
+				}
+			}
+		}
+		Collections.reverse(coupTrie);
+		
+		return coupTrie;
 	}
 
 	/**
@@ -192,5 +231,6 @@ public class MonIA extends AbstractIA {
 	 * @return facteur de puissance
 	 * @author David Dufresne
 	 */
-	private double facteur_puissance(Personnage monPerso){	return f.facteur_puissance(monPerso);}
+	private double facteur_puissance(Personnage monPerso){	return factPuiss.facteur_puissance(monPerso);}
+
 }
