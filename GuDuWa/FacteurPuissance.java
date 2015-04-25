@@ -1,8 +1,7 @@
 package GuDuWa;
-
 import java.util.List;
 
-import Model.Matrice;
+import Controleur.Partie;
 import Model.Personnage;
 import Model.Sort;
 import Personnages.Cavalier;
@@ -12,23 +11,29 @@ import Personnages.Voleur;
 
 /**
  * Must be created by a MonIA instance,
+ * Permet de calculer la valeur pondérée (entre 0 et 1) de chacun des personnages présents.
+ * Facteurs affectables:
+ * - coefPV: défini l'importance associée aux points de vie
+ * - coefAtt: [...] à l'impact des attaques
+ * - coefDepl: [...] à la portée max des attaques
+ * 
+ * La somme de ces coefs doit valoir 1
  * @author David Dufresne
  *
  */
 public class FacteurPuissance
 {
-	private double[] tabFacteurPuissance = new double[4];
-	private MonIA myIA;
+	private double[] tabFacteurPuissance;
 	
-	public FacteurPuissance(MonIA m)
+	public FacteurPuissance(Partie p)
 	{
-		this(m, 0.4, 0.4, 0.2);		
+		this(p, 0.1, 0.7, 0.2);		
 	}
-	
-	public FacteurPuissance(MonIA m, double a, double b, double c)
+		
+	public FacteurPuissance(Partie p, double coefPV, double coefAtt, double coefDepl)
 	{
-		myIA=m;
-		generateFacteurPuissance(a, b, c);
+		tabFacteurPuissance = new double[4];
+		generateFacteurPuissance(coefPV, coefAtt, coefDepl, p);
 	}
 
 
@@ -63,14 +68,16 @@ public class FacteurPuissance
 
 
 	
-	public void generateFacteurPuissance(double a, double b, double c)
+	public void generateFacteurPuissance(double coefPV, double coefAtt, double coefDepl, Partie maPartie)
 	{
-		List<Personnage> mesPerso = myIA.getEquipe().getMembres();
+		List<Personnage> mesPerso = maPartie.getPersonnagesDisponibles();
+	
 			
 		int[] 	tabPV 	= new int[4],
 				tabAtt 	= new int[4],
 				tabDep 	= new int[4];
 				
+		System.out.println("listePerso: taille= " + mesPerso.size());
 		for (Personnage temp : mesPerso)
 		{
 			int indice=getRefTableau(temp);
@@ -84,16 +91,21 @@ public class FacteurPuissance
 			int nbsort=0;
 			int somme=0;
 			
+			int sommeDepl=0;//depl
+			
 			for (Sort s: listAtt)
 			{
+				//partie Attaque
 				nbsort++;
-				somme += s.getDegat()*s.getPorteeMax();
+				somme += s.getDegat();
+				
+				//partie Deplacement
+				sommeDepl += s.getPorteeMax();
 			}
-			tabAtt[indice]= somme / nbsort;
-			
+			//att
+			tabAtt[indice]= somme / nbsort;			
 			//depl
-			Matrice mat=temp.getMouvement();
-			tabDep[indice]= Math.max(mat.getColonne(), mat.getLigne());
+			tabDep[indice]= sommeDepl /nbsort;
 
 		}
 		
@@ -112,9 +124,10 @@ public class FacteurPuissance
 		// Prérequis: a + b +c = ;; a,b,c > 0
 		for (int j=0; j<4; j++)
 		{
-			tabFacteurPuissance[j]= 	a * ((float) tabPV[j]) / ((float) maxPV) +
-										b * ((float) tabAtt[j]) / ((float) maxAtt) +
-										c * ((float) tabDep[j]) / ((float) maxDepl) ;					
+			tabFacteurPuissance[j]= 	coefPV * ((float) tabPV[j]) / ((float) maxPV) +
+										coefAtt * ((float) tabAtt[j]) / ((float) maxAtt) +
+										coefDepl * ((float) tabDep[j]) / ((float) maxDepl) ;					
 		}
 	}
+	
 }

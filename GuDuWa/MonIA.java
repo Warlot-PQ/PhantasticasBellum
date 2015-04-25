@@ -3,7 +3,7 @@ package GuDuWa;
 import java.util.List;
 
 import Controleur.Partie;
-import IA.*;
+import IA.AbstractIA;
 import Model.Coup;
 import Model.Joueur;
 import Model.Personnage;
@@ -11,6 +11,7 @@ import Model.Personnage;
 public class MonIA extends AbstractIA {
 	private int aplha = 50;
 	private int beta = -50;
+	public FacteurPuissance f=null;
 	
 	public MonIA(String nom) {
 		super(nom);
@@ -18,8 +19,8 @@ public class MonIA extends AbstractIA {
 
 	@Override
 	public Coup getCoup(Partie p) {
-		
-		
+		if (f==null) {f = new FacteurPuissance(p);} // Pour permettre le premier calcul dudit facteur. David !!
+					// ou FacteurPuissance( p, coefPv, coefAtt, coefDepl);
 		
 		
 		alphaBeta(p, p.getJoueurActuel(), this.aplha, this.beta, true, 5);
@@ -143,7 +144,7 @@ public class MonIA extends AbstractIA {
 	private int heuristique_plateau(Partie maPartie) {
 		
 		//Thomas
-
+		return 0;
 	}
 	/**
 	 * Calcul l'heuristique de chaque coup (sa valeur), ordonne par ordre décroissant et ne garde que les nbCoupRetour premiers
@@ -182,17 +183,14 @@ public class MonIA extends AbstractIA {
 	 */
 	private int heuristique_coup(Coup monCoup) {
 		
-
+		return 0;
 	}
 	
 	/**
 	 * Calcul du facteur de puissance d'un personnage (importance de personnage en début de partie)
 	 * @param monPerso personne à évaluer
 	 * @return facteur de puissance
+	 * @author David Dufresne
 	 */
-	private int facteur_puissance(Personnage monPerso) {
-		
-		//David
-		
-	}
+	private double facteur_puissance(Personnage monPerso){	return f.facteur_puissance(monPerso);}
 }
