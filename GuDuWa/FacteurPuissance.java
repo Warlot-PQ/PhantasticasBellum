@@ -11,17 +11,7 @@ import Personnages.Magicien;
 import Personnages.Voleur;
 
 /**
- * Must be created by a MonIA instance,
- * Permet de calculer la valeur pondérée (entre 0 et 1) de chacun des personnages présents.
- * Facteurs affectables:
- * - coefPV: défini l'importance associée aux points de vie
- * - coefAtt: [...] à l'impact des attaques
- * - coefDepl: [...] à la portée max des attaques
- * 
- * La somme de ces coefs doit valoir 1
- * @author David Dufresne, correction par Pierre-Quentin
- *
- *
+ * Le facteur de puissance représente l'importance d'un personnage
  * Utilisation du design pattern Singleton, pour un calcul unique (économie de temps)
  */
 public class FacteurPuissance
@@ -38,6 +28,11 @@ public class FacteurPuissance
 	private double bonusMediumRange = 0.5;
 	private double bonusRange = 1;
 
+	/**
+	 * Retourne le singleton FacteurPuissance
+	 * @param p partie sur laquelle le facteur de puissance des personnages est calculé
+	 * @return instance unique de la classe FacteurPuissance
+	 */
 	public static FacteurPuissance getInstance(Partie p) {
 		if (FacteurPuissance.mySingleton == null) {
 			FacteurPuissance.mySingleton = new FacteurPuissance(p);
@@ -45,13 +40,13 @@ public class FacteurPuissance
 		return FacteurPuissance.mySingleton;
 	}
 	
+	/**
+	 * Lance le calcul du facteur de puissance des personnages
+	 * @param p partie sur laquelle le facteur de puissance des personnages est calculé
+	 */
 	private FacteurPuissance(Partie p) {
-		generateFacteurPuissance(p);	
-	}
-	
-	private void generateFacteurPuissance(Partie maPartie) {
 		//3 listes ordonnées (liens entre les SDD par l'index d'accès)
-		List<Personnage> myPersos = maPartie.getPersonnagesDisponibles();
+		List<Personnage> myPersos = p.getPersonnagesDisponibles();
 		List<Integer> totalDammage = new ArrayList();
 		List<Integer> totalLife = new ArrayList();
 		
@@ -104,6 +99,11 @@ public class FacteurPuissance
 		}
 	}
 	
+	/**
+	 * Retourne le facteur de puissance du personnage passé en paramètre
+	 * @param myPerso personnage
+	 * @return facteur de puissance du personnage
+	 */
 	public double getByPerso(Personnage myPerso) {
 		if (myPerso instanceof Voleur) {
 			return this.voleur;
@@ -117,6 +117,11 @@ public class FacteurPuissance
 		return 0;
 	}
 
+	/**
+	 * Retourne le facteur de puissance compris entre 0 et 1 du personnage passé en paramètre
+	 * @param myPerso personnage
+	 * @return facteur de puissance du personnage
+	 */
 	public double getByPersoBetweenZeroAndOne(Personnage myPerso) {
 		return getByPerso(myPerso) / this.maximumValue;
 	}

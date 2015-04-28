@@ -1,29 +1,23 @@
 package GuDuWa;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import Controleur.Partie;
 import IA.*;
 import Model.Action;
 import Model.Attaque;
 import Model.Coup;
-import Model.Joueur;
 import Model.Personnage;
 import Model.Personnage.creatureType;
 
-public class MonIA extends AbstractIA {
+public class IAGuduwa extends AbstractIA {
 	FacteurPuissance monFacteurPuissance;
 	private int alpha = 50;
 	private int beta = -50;
 	private int profondeur = 2;
 	
-	public MonIA(String nom) {
+	public IAGuduwa(String nom) {
 		super(nom);
 	}
 
@@ -37,16 +31,10 @@ public class MonIA extends AbstractIA {
 		return getCoupMemorise();
 	}
 	
-	//TODO ici chaque joueur joue ï¿½ tour de role. En rï¿½alitï¿½ un joueur peut jouer deux fois il l'autre possï¿½de un personnage de moins.
-	
-	public int alphaBeta(Partie model, int alpha, int beta, boolean noeudMax, int profondeur) {
-//		System.out.println("Max : " + noeudMax + ", profondeur " + profondeur);
-		
+	private int alphaBeta(Partie model, int alpha, int beta, boolean noeudMax, int profondeur) {
 		boolean partieFini = model.estTerminee();
 		
 		if (profondeur == 0) {
-			//Si profondeur max atteinte
-//			System.out.println("------Profondeur max atteinte.------");
 			return heuristique_plateau(model);
 		} else if (partieFini) {
 			//Si la partie est terminï¿½e
@@ -55,15 +43,12 @@ public class MonIA extends AbstractIA {
 			
 			if (partieGagne) {
 				//Terminï¿½e et gagnï¿½e => retourner la valeur maximum
-//				System.out.println("------Partie gagnï¿½.------");
 				return this.alpha;
 			} else if (partiePerdu) {
 				//Terminï¿½e et perdu => retourner la valeur minimum
-//				System.out.println("------Partie perdu.------");
 				return this.beta;
 			} else {
 				//Terminï¿½e et match nul => retourner la valeur moyenne
-//				System.out.println("------Partie nulle.------");
 				return (this.beta + this.alpha) / 2;
 			}
 		} else {
@@ -80,15 +65,15 @@ public class MonIA extends AbstractIA {
 				 * Pas de filtrage sur les personnages pour le moment
 				 */ 
 				//Choisie un personnage parmis ceux disponible 
-				List test = model.listerEquipeJoueur();
-				personnageChoisi = choix_personnage(test);
+				List<Personnage> mesPerso = model.listerEquipeJoueur();
+				personnageChoisi = choix_personnage(mesPerso);
 				
 				//Rï¿½cupï¿½re toutes les actions possibles du personnage selectionnï¿½
 				listeCoup = model.getTousCoupsPersonnage(personnageChoisi);
 				//listeCoup = model.getTousCoups();
 				
 				//Ordonne et elague la liste de coup
-				listeCoup = (List<Coup>) elague_ordonne_reduit_coup(listeCoup, Integer.MAX_VALUE);
+				listeCoup = (List<Coup>) elaguage_coup(listeCoup);
 
 				for(Coup coupJoue : listeCoup) {
 					Partie modelClone = model.clone();
@@ -105,7 +90,6 @@ public class MonIA extends AbstractIA {
 						alpha = alphaCourant;
 						//Sauvegarde le coup si on est au premier niveau de profondeur
 						if (profondeur == this.profondeur) {
-							System.out.println("------Coup mï¿½morisï¿½.------");
 							memoriseCoup(coupJoue);
 						}
 					}
@@ -123,7 +107,7 @@ public class MonIA extends AbstractIA {
 				listeCoup = model.getTousCoups();
 				
 				//Ordonne et elague la liste de coup
-				listeCoup = (List<Coup>) elague_ordonne_reduit_coup(listeCoup, Integer.MAX_VALUE);
+				listeCoup = elaguage_coup(listeCoup);
 				for(Coup coupJoue : listeCoup) {
 					Partie modelClone = model.clone();
 					
@@ -158,46 +142,13 @@ public class MonIA extends AbstractIA {
 
 		return new HeuristiquePlateau(maPartie).calculHeuristique();
 	}
-	/**
-	 * Calcul l'heuristique de chaque coup (sa valeur), ordonne par ordre dï¿½croissant et ne garde que les nbCoupRetour premiers
-	 * @param listeCoup liste de coup ï¿½ ï¿½valuï¿½, ordonnï¿½ et ï¿½laguer
-	 * @param nbCoupRetour nombre de coup conservï¿½ aprï¿½s ï¿½laguage
-	 */
-	private Collection<Coup> elague_ordonne_reduit_coup(List<Coup> listeCoup, int nbCoupRetour) {
-		elaguage_coup(listeCoup);
-		
-		int nombreCoup = listeCoup.size();
-		ArrayList<Coup> coupTrie = new ArrayList();
-		
-		Map<Integer, List<Coup>> coupsEtValeurs = new TreeMap();
-		
-		//Ordonner les coups par ordre croissant
-		for (Coup monCoup : listeCoup) {
-			int valeurCoup = heuristique_coup(monCoup);
-			
-			if (coupsEtValeurs.containsKey(valeurCoup) == false) {
-				coupsEtValeurs.put(valeurCoup, new ArrayList<Coup>());
-			}
-			coupsEtValeurs.get(valeurCoup).add(monCoup);
-		}
-		
-		int compteurCoup = 0;
-		//Ne selectionne que les N derniers
-		for (Map.Entry<Integer, List<Coup>> coupEtValeur : coupsEtValeurs.entrySet()) {
-			compteurCoup += coupEtValeur.getValue().size();
-			
-			if (nombreCoup - compteurCoup <= nbCoupRetour) {
-				for (Coup monCoup : coupEtValeur.getValue()) {
-					coupTrie.add(monCoup);
-				}
-			}
-		}
-		Collections.reverse(coupTrie);
-		
-		return coupTrie;
-	}
 	
-	private void elaguage_coup(List<Coup> listeCoup){
+	/**
+	 * Elague les coups non necessaire
+	 * @param listeCoup liste à élaguer
+	 * @return liste élagué
+	 */
+	private List<Coup> elaguage_coup(List<Coup> listeCoup){
 		Iterator<Coup> listeCoupIterator = listeCoup.iterator();
 		
 		while(listeCoupIterator.hasNext()) {
@@ -225,15 +176,8 @@ public class MonIA extends AbstractIA {
 				}
 			}
 		}
-		
-		//TODO supprimer action si auto-attaque ou attaque d'un alliï¿½
+		return listeCoup;
 	}
-	
-	//Non encore implï¿½mentï¿½
-	/*private List<Coup> ordonne_coup(List<Coup> listeCoup){
-		
-		return null;
-	}*/
 
 	/**
 	 * Choisie et retourne le personnage le plus puissant dans la liste passï¿½ en paramï¿½tre
@@ -242,7 +186,6 @@ public class MonIA extends AbstractIA {
 	 */
 	private Personnage choix_personnage(List<Personnage> personnageEquipe) {
 		Personnage persoChoisi = null;
-		
 		
 		for (Personnage persoAutre : personnageEquipe) {
 			if(persoAutre.isDejaJoue()){
@@ -255,16 +198,5 @@ public class MonIA extends AbstractIA {
 		
 		
 		return persoChoisi;
-	}
-
-	/**
-	 * Calcul l'heuristique du coup (l'ï¿½value) passï¿½ en paramï¿½tre et retourne la valeur calculï¿½
-	 * @param monCoup coup ï¿½ ï¿½valuer
-	 * @return valeur du coup
-	 */
-	private int heuristique_coup(Coup monCoup) {
-		
-
-		return 0;
 	}
 }
