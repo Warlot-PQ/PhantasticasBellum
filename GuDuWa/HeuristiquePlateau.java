@@ -6,33 +6,52 @@ import Model.Personnage;
 public class HeuristiquePlateau {
 	Partie maPartie = null;
 	
+	/**
+	 * Constructeur
+	 * @param _maPartie partie dont on applique l'heuristique
+	 */
 	public HeuristiquePlateau(Partie _maPartie){
 		maPartie = _maPartie;
 	}
 	
+	/**
+	 * calcul de l'heuristique maximal de l'heuristique du nombre de personnage
+	 * @return int valeur de l'heuristique maximal
+	 */
 	public int calculHeuristiqueMaxnbPersonnage(){
-		//12 = PV max du PFs
+//		12 = PV max du PFs
 		return  maPartie.getTailleEquipe()*4 + maPartie.getTailleEquipe() * 12 / 2; 
 	}
+	
+	/**
+	 * calcul de l'heuristique maximal de l'heuristique du placement des personnages
+	 * @return int valeur de l'heuristique maximal
+	 */
 	public int calculHeuristiqueMaxPlacement(){
-		//1er *2 est le coefficient si un magicien est coller a un PFs adverse
-		//2eme morceau c'est pour l'inter-PFs
+//		1er "*2" est le coefficient si un magicien est colle a un PFs adverse
+//		2eme morceau c'est pour l'inter-PFs
 		return  maPartie.getTailleEquipe()*2 + (maPartie.getTailleEquipe()-1)*maPartie.getTailleEquipe();
 	}
+	
+	/**
+	 * calcul de l'heuristique maximal generale
+	 * @return int valeur de l'heuristique maximal
+	 */
 	public int calculHeuristiqueMax(){
 		return calculHeuristiqueMaxnbPersonnage() +calculHeuristiqueMaxPlacement() ;
 	}
 	
 	/**
 	 * Doit retourner une heuristique entre -50 et 50
-	 * @return
+	 * @return int l'heuristique generale
 	 */
 	public int calculHeuristique(){
 		return ((h_nbPersonnage() + h_Placement()) *50 )/ calculHeuristiqueMax();
 	}
 	
 	/**
-	*	Heuristique comprise entre [38/2+4*4,-(38/2+4*3)] = 14 + 16,
+	* Heuristique prenant en compte le nombre de personnage vivant ainsi que leurs point de vie
+	* @return int heuristique comprise entre [38/2+4*4,-(38/2+4*3)] = 14 + 16,
 	*/
 	public int h_nbPersonnage(){
 		int nb_Personnage_Allie = 0;
@@ -52,6 +71,10 @@ public class HeuristiquePlateau {
 		return nb_Personnage_Allie*4 - nb_Personnage_Adverse*4 + nb_PointDeVie_Allie/2 - nb_PointDeVie_Adverse/2;
 	}
 
+	/**
+	 * Heuristique prenant en compte le placement des personnages sur le plateau
+	 * @return int heuristique
+	 */
 	public int h_Placement(){
 		int distanceAdversaireLePlusProche =0;
 		float heuristiqueCourante = 0;
@@ -101,6 +124,10 @@ public class HeuristiquePlateau {
 		return meilleurDistanceCourante;
 	}
 
+	/**
+	 * Calcul une heuristique de placement entre les Personnages
+	 * @return int : malus par rapport aux nombre de Personnage collé compris entre 0 et -(taille equipe *  taille equipe)
+	 */
 	public int PlacementInterPFs(){
 		int minX,maxX,minY,maxY;
 		int malus = 0; 
@@ -122,6 +149,6 @@ public class HeuristiquePlateau {
 				}
 			}
 		}
-		return malus;
+		return -malus;
 	}
 }
