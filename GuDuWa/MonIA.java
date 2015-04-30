@@ -10,6 +10,8 @@ import java.util.TreeMap;
 
 import Controleur.Partie;
 import IA.*;
+import Model.Action;
+import Model.Attaque;
 import Model.Coup;
 import Model.Joueur;
 import Model.Personnage;
@@ -31,17 +33,13 @@ public class MonIA extends AbstractIA {
 		
 		alphaBeta(p.clone(), this.beta, this.alpha, true, this.profondeur);
 		
-		System.out.println("---------------------");
-		System.out.println(getCoupMemorise());
-		System.out.println("---------------------");
-		
 		return getCoupMemorise();
 	}
 	
-	//TODO ici chaque joueur joue à tour de role. En réalité un joueur peut jouer deux fois il l'autre possède un personnage de moins.
+	//TODO ici chaque joueur joue ï¿½ tour de role. En rï¿½alitï¿½ un joueur peut jouer deux fois il l'autre possï¿½de un personnage de moins.
 	
 	public int alphaBeta(Partie model, int alpha, int beta, boolean noeudMax, int profondeur) {
-		System.out.println("Max : " + noeudMax + ", profondeur " + profondeur);
+//		System.out.println("Max : " + noeudMax + ", profondeur " + profondeur);
 		
 		boolean partieFini = model.estTerminee();
 		
@@ -50,26 +48,26 @@ public class MonIA extends AbstractIA {
 //			System.out.println("------Profondeur max atteinte.------");
 			return heuristique_plateau(model);
 		} else if (partieFini) {
-			//Si la partie est terminée
+			//Si la partie est terminï¿½e
 			boolean partieGagne = model.listerEquipesAdverses().isEmpty();
 			boolean partiePerdu = model.listerEquipes().isEmpty();
 			
 			if (partieGagne) {
-				//Terminée et gagnée => retourner la valeur maximum
-//				System.out.println("------Partie gagné.------");
+				//Terminï¿½e et gagnï¿½e => retourner la valeur maximum
+//				System.out.println("------Partie gagnï¿½.------");
 				return this.alpha;
 			} else if (partiePerdu) {
-				//Terminée et perdu => retourner la valeur minimum
+				//Terminï¿½e et perdu => retourner la valeur minimum
 //				System.out.println("------Partie perdu.------");
 				return this.beta;
 			} else {
-				//Terminée et match nul => retourner la valeur moyenne
+				//Terminï¿½e et match nul => retourner la valeur moyenne
 //				System.out.println("------Partie nulle.------");
 				return (this.beta + this.alpha) / 2;
 			}
 		} else {
-			//Profondeur non atteinte et partie non terminée
-			//Personnage personnageChoisi;	//Non utilisé pour le moment
+			//Profondeur non atteinte et partie non terminï¿½e
+			//Personnage personnageChoisi;	//Non utilisï¿½ pour le moment
 			List<Coup> listeCoup;
 			int alphaCourant;
 			int betaCourant;
@@ -83,7 +81,7 @@ public class MonIA extends AbstractIA {
 				//Choisie un personnage parmis ceux disponible 
 				personnageChoisi = choix_personnage(modelClone.getJoueurActuel().getEquipe().);
 				
-				//Récupére toutes les actions possibles du personnage selectionné
+				//Rï¿½cupï¿½re toutes les actions possibles du personnage selectionnï¿½
 				listeAction = modelClone.getTousCoupsPersonnage(personnageChoisi);
 				*/
 				listeCoup = model.getTousCoups();
@@ -102,11 +100,11 @@ public class MonIA extends AbstractIA {
 					alphaCourant = alphaBeta(modelClone, alpha, beta, !noeudMax, profondeur - 1);
 
 					if (alphaCourant > alpha) {
-						//Si un meilleur coups est trouvé
+						//Si un meilleur coups est trouvï¿½
 						alpha = alphaCourant;
 						//Sauvegarde le coup si on est au premier niveau de profondeur
 						if (profondeur == this.profondeur) {
-							System.out.println("------Coup mémorisé.------");
+							System.out.println("------Coup mï¿½morisï¿½.------");
 							memoriseCoup(coupJoue);
 						}
 					}
@@ -120,12 +118,11 @@ public class MonIA extends AbstractIA {
 			} else {
 				//A l'adversaire de jouer
 				
-				//Récupére toutes les actions possibles des personnages adverses
+				//Rï¿½cupï¿½re toutes les actions possibles des personnages adverses
 				listeCoup = model.getTousCoups();
 				
 				//Ordonne et elague la liste de coup
 				listeCoup = (List<Coup>) elague_ordonne_reduit_coup(listeCoup, Integer.MAX_VALUE);
-				
 				for(Coup coupJoue : listeCoup) {
 					Partie modelClone = model.clone();
 					
@@ -137,7 +134,7 @@ public class MonIA extends AbstractIA {
 					betaCourant = alphaBeta(modelClone, alpha, beta, !noeudMax, profondeur - 1);
 
 					if (betaCourant < beta) {
-						//Si pire coups trouvé
+						//Si pire coups trouvï¿½
 						beta = betaCourant;
 					}
 					//Coupure alpha
@@ -152,20 +149,18 @@ public class MonIA extends AbstractIA {
 	}
 	
 	/**
-	 * Calcul l'heuristique de la partie (l'évalue) passé en paramètre et retourne la valeur calculé
-	 * @param maPartie partie à évaluer
+	 * Calcul l'heuristique de la partie (l'ï¿½value) passï¿½ en paramï¿½tre et retourne la valeur calculï¿½
+	 * @param maPartie partie ï¿½ ï¿½valuer
 	 * @return valeur du plateau
 	 */
 	private int heuristique_plateau(Partie maPartie) {
-		
-		//Thomas
 
-		return 0;
+		return new HeuristiquePlateau(maPartie).calculHeuristique();
 	}
 	/**
-	 * Calcul l'heuristique de chaque coup (sa valeur), ordonne par ordre décroissant et ne garde que les nbCoupRetour premiers
-	 * @param listeCoup liste de coup à évalué, ordonné et élaguer
-	 * @param nbCoupRetour nombre de coup conservé après élaguage
+	 * Calcul l'heuristique de chaque coup (sa valeur), ordonne par ordre dï¿½croissant et ne garde que les nbCoupRetour premiers
+	 * @param listeCoup liste de coup ï¿½ ï¿½valuï¿½, ordonnï¿½ et ï¿½laguer
+	 * @param nbCoupRetour nombre de coup conservï¿½ aprï¿½s ï¿½laguage
 	 */
 	private Collection<Coup> elague_ordonne_reduit_coup(List<Coup> listeCoup, int nbCoupRetour) {
 		elaguage_coup(listeCoup);
@@ -211,19 +206,30 @@ public class MonIA extends AbstractIA {
 			if (monCoup.getActions().isEmpty()) {
 				listeCoupIterator.remove();
 			}
+			// On parcours toutes les actions de notre coups
+			for(Action a : monCoup.getActions()){
+				// On regarde si l'action est une attaque
+				if(a instanceof Attaque){
+					// Si la cible de l'attaque est un personnage de la mÃªme Ã©quipe
+					if(((Attaque) a).getCible().getProprio() == monCoup.getAuteur().getProprio()){
+						listeCoupIterator.remove();
+					}
+				}
+			}
+
 		}
 		
-		//TODO supprimer action si auto-attaque ou attaque d'un allié
+		//TODO supprimer action si auto-attaque ou attaque d'un alliï¿½
 	}
 	
-	//Non encore implémenté
+	//Non encore implï¿½mentï¿½
 	/*private List<Coup> ordonne_coup(List<Coup> listeCoup){
 		
 		return null;
 	}*/
 
 	/**
-	 * Choisie et retourne le personnage le plus puissant dans la liste passé en paramètre
+	 * Choisie et retourne le personnage le plus puissant dans la liste passï¿½ en paramï¿½tre
 	 * @param personnageEquipe liste de personnage
 	 * @return personnage choisi
 	 */
@@ -240,8 +246,8 @@ public class MonIA extends AbstractIA {
 	}
 
 	/**
-	 * Calcul l'heuristique du coup (l'évalue) passé en paramètre et retourne la valeur calculé
-	 * @param monCoup coup à évaluer
+	 * Calcul l'heuristique du coup (l'ï¿½value) passï¿½ en paramï¿½tre et retourne la valeur calculï¿½
+	 * @param monCoup coup ï¿½ ï¿½valuer
 	 * @return valeur du coup
 	 */
 	private int heuristique_coup(Coup monCoup) {

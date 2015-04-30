@@ -5,6 +5,7 @@ import Model.Personnage;
 
 public class HeuristiquePlateau {
 	Partie maPartie = null;
+	int facteurModificateurHeuristiqueMaxNbPerso = 3;
 	
 	/**
 	 * Constructeur
@@ -13,34 +14,7 @@ public class HeuristiquePlateau {
 	public HeuristiquePlateau(Partie _maPartie){
 		maPartie = _maPartie;
 	}
-	
-	/**
-	 * calcul de l'heuristique maximal de l'heuristique du nombre de personnage
-	 * @return int valeur de l'heuristique maximal
-	 */
-	public int calculHeuristiqueMaxnbPersonnage(){
-//		12 = PV max du PFs
-		return  maPartie.getTailleEquipe()*4 + maPartie.getTailleEquipe() * 12 / 2; 
-	}
-	
-	/**
-	 * calcul de l'heuristique maximal de l'heuristique du placement des personnages
-	 * @return int valeur de l'heuristique maximal
-	 */
-	public int calculHeuristiqueMaxPlacement(){
-//		1er "*2" est le coefficient si un magicien est colle a un PFs adverse
-//		2eme morceau c'est pour l'inter-PFs
-		return  maPartie.getTailleEquipe()*2 + (maPartie.getTailleEquipe()-1)*maPartie.getTailleEquipe();
-	}
-	
-	/**
-	 * calcul de l'heuristique maximal generale
-	 * @return int valeur de l'heuristique maximal
-	 */
-	public int calculHeuristiqueMax(){
-		return calculHeuristiqueMaxnbPersonnage() +calculHeuristiqueMaxPlacement() ;
-	}
-	
+
 	/**
 	 * Doit retourner une heuristique entre -50 et 50
 	 * @return int l'heuristique generale
@@ -48,6 +22,9 @@ public class HeuristiquePlateau {
 	public int calculHeuristique(){
 		return ((h_nbPersonnage() + h_Placement()) *50 )/ calculHeuristiqueMax();
 	}
+/*--------------------------------------*
+ * 		Calcul heuristique 				*
+ *--------------------------------------*/
 	
 	/**
 	* Heuristique prenant en compte le nombre de personnage vivant ainsi que leurs point de vie
@@ -68,7 +45,8 @@ public class HeuristiquePlateau {
 			nb_Personnage_Adverse = nb_Personnage_Adverse + 1;
 			nb_PointDeVie_Adverse += PFs.getVie();
 		}
-		return nb_Personnage_Allie*4 - nb_Personnage_Adverse*4 + nb_PointDeVie_Allie/2 - nb_PointDeVie_Adverse/2;
+		int valeur_temporaire=	(nb_Personnage_Allie - nb_Personnage_Adverse)*4 + (nb_PointDeVie_Allie - nb_PointDeVie_Adverse)/2;
+		return valeur_temporaire * facteurModificateurHeuristiqueMaxNbPerso ;
 	}
 
 	/**
@@ -83,7 +61,7 @@ public class HeuristiquePlateau {
 			distanceAdversaireLePlusProche = distanceAdversairePlusProche(PFs);
 			if(PFs.getClasse() == "Magicien"){
 // 				C'est un magicien
-				if(distanceAdversaireLePlusProche == 0){
+				if(distanceAdversaireLePlusProche == 1){
 					heuristiqueCourante += -1 ;
 				} else if(distanceAdversaireLePlusProche < maPartie.getPlateauLargeur()/2){
 						heuristiqueCourante += 0;
@@ -92,7 +70,7 @@ public class HeuristiquePlateau {
 						}
 			} else {
 // 					Ce n'est pas un magicien
-					if(distanceAdversaireLePlusProche == 0){
+					if(distanceAdversaireLePlusProche == 1){
 						heuristiqueCourante += 0.5 ;
 					} else if(distanceAdversaireLePlusProche < maPartie.getPlateauLargeur()/2){
 							heuristiqueCourante += 0.25;
@@ -151,4 +129,36 @@ public class HeuristiquePlateau {
 		}
 		return -malus;
 	}
+	
+/*--------------------------------------*
+ * 		Calcul heuristique maximal		*
+ *--------------------------------------*/
+
+	/**
+	 * calcul de l'heuristique maximal de l'heuristique du nombre de personnage
+	 * @return int valeur de l'heuristique maximal
+	 */
+	public int calculHeuristiqueMaxnbPersonnage(){
+//			12 = PV max du PFs
+		return  (maPartie.getTailleEquipe()*4 + maPartie.getTailleEquipe() * 12 / 2)*facteurModificateurHeuristiqueMaxNbPerso; 
+	}
+	
+	/**
+	 * calcul de l'heuristique maximal de l'heuristique du placement des personnages
+	 * @return int valeur de l'heuristique maximal
+	 */
+	public int calculHeuristiqueMaxPlacement(){
+//			1er "*2" est le coefficient si un magicien est colle a un PFs adverse
+//			2eme morceau c'est pour l'inter-PFs
+		return  maPartie.getTailleEquipe()*2 + (maPartie.getTailleEquipe()-1)*maPartie.getTailleEquipe();
+	}
+	
+	/**
+	 * calcul de l'heuristique maximal generale
+	 * @return int valeur de l'heuristique maximal
+	 */
+	public int calculHeuristiqueMax(){
+		return calculHeuristiqueMaxnbPersonnage() +calculHeuristiqueMaxPlacement() ;
+	}
+		
 }
