@@ -15,6 +15,7 @@ import Model.Attaque;
 import Model.Coup;
 import Model.Joueur;
 import Model.Personnage;
+import Model.Personnage.creatureType;
 
 public class MonIA extends AbstractIA {
 	FacteurPuissance monFacteurPuissance;
@@ -213,10 +214,16 @@ public class MonIA extends AbstractIA {
 					// Si la cible de l'attaque est un personnage de la même équipe
 					if(((Attaque) a).getCible().getProprio() == monCoup.getAuteur().getProprio()){
 						listeCoupIterator.remove();
+					} else
+					// Si la cible de l'attaque est un personnage de type different que celle de l'attaque
+					if(((Attaque) a).getSort().getTypeCible() != creatureType.TOUT &&
+							((Attaque) a).getCible().getType() != ((Attaque) a).getSort().getTypeCible()){
+						listeCoupIterator.remove();
+					} else 	if(((Attaque) a).getSort().getDegat() == 0){
+							listeCoupIterator.remove();
 					}
 				}
 			}
-
 		}
 		
 		//TODO supprimer action si auto-attaque ou attaque d'un alli�
