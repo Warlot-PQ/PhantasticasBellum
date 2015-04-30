@@ -68,7 +68,7 @@ public class MonIA extends AbstractIA {
 			}
 		} else {
 			//Profondeur non atteinte et partie non termin�e
-			//Personnage personnageChoisi;	//Non utilis� pour le moment
+			Personnage personnageChoisi;	//Non utilis� pour le moment
 			List<Coup> listeCoup;
 			int alphaCourant;
 			int betaCourant;
@@ -78,14 +78,14 @@ public class MonIA extends AbstractIA {
 				
 				/*
 				 * Pas de filtrage sur les personnages pour le moment
-				 * 
+				 */ 
 				//Choisie un personnage parmis ceux disponible 
-				personnageChoisi = choix_personnage(modelClone.getJoueurActuel().getEquipe().);
+				List test = model.listerEquipeJoueur();
+				personnageChoisi = choix_personnage(test);
 				
 				//R�cup�re toutes les actions possibles du personnage selectionn�
-				listeAction = modelClone.getTousCoupsPersonnage(personnageChoisi);
-				*/
-				listeCoup = model.getTousCoups();
+				listeCoup = model.getTousCoupsPersonnage(personnageChoisi);
+				//listeCoup = model.getTousCoups();
 				
 				//Ordonne et elague la liste de coup
 				listeCoup = (List<Coup>) elague_ordonne_reduit_coup(listeCoup, Integer.MAX_VALUE);
@@ -243,11 +243,16 @@ public class MonIA extends AbstractIA {
 	private Personnage choix_personnage(List<Personnage> personnageEquipe) {
 		Personnage persoChoisi = null;
 		
+		
 		for (Personnage persoAutre : personnageEquipe) {
+			if(persoAutre.isDejaJoue()){
+				continue;
+			}
 			if (persoChoisi == null	|| monFacteurPuissance.getByPerso(persoAutre) < monFacteurPuissance.getByPerso(persoAutre)) {
 				persoChoisi = persoAutre;
 			}
 		}
+		
 		
 		return persoChoisi;
 	}
